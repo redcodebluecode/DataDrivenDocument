@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+	.state{
+		fill: none;
+		stroke: #a9a9a9;
+		stroke-width: 1;
+	}
+	.state:hover{
+		fill-opacity:0.5;
+	}
+	#tooltip {   
+		position: absolute;           
+		text-align: center;
+		padding: 20px;             
+		margin: 10px;
+		font: 12px sans-serif;        
+		background: lightsteelblue;   
+		border: 1px;      
+		border-radius: 2px;           
+		pointer-events: none;         
+	}
+	#tooltip h4{
+		margin:0;
+		font-size:14px;
+	}
+	#tooltip{
+		background:rgba(0,0,0,0.9);
+		border:1px solid grey;
+		border-radius:5px;
+		font-size:12px;
+		width:auto;
+		padding:4px;
+		color:white;
+		opacity:0;
+	}
+	#tooltip table{
+		table-layout:fixed;
+	}
+	#tooltip tr td{
+		padding:0;
+		margin:0;
+	}
+	#tooltip tr td:nth-child(1){
+		width:50px;
+	}
+	#tooltip tr td:nth-child(2){
+		text-align:center;
+	}
+</style>
+<body>
+<div id="tooltip"></div> <!-- div to hold tooltip. -->
+<svg width="960" height="600" id="statesvg"></svg> <!-- svg to hold the map. -->
+<script src="http://bl.ocks.org/NPashaP/raw/a74faf20b492ad377312/uStates.js"></script>  <!-- creates uStates. -->
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script>
+
+	function tooltipHtml(n, d){	/* function to create html content string in tooltip div. */
+		return "<h4>"+n+"</h4><table>"+
+			"<tr><td>Net</td><td>"+(d.Net)+"</td></tr>"+
+			"<tr><td>In</td><td>"+(d.In)+"</td></tr>"+
+			"<tr><td>Out</td><td>"+(d.Out)+"</td></tr>"+
+			"</table>";
+	}
+	
+	var sampleData ={};	/* Sample random data. */	
+	<!-- 1. Original Solution -->
+	<!-- ["HI", "AK", "FL", "SC", "GA", "AL", "NC", "TN", "RI", "CT", "MA", "ME", "NH", "VT", "NY", "NJ", "PA", "DE", "MD",  -->
+	<!-- "WV", "KY", "OH", "MI", "WY", "MT", "ID", "WA", "DC", "TX", "CA", "AZ", "NV", "UT", "CO", "NM", "OR", "ND", "SD",  -->
+	<!-- "NE", "IA", "MS", "IN", "IL", "MN", "WI", "MO", "AR", "OK", "KS", "LS", "VA"] -->
+	<!-- .forEach(function(d){  -->
+			<!-- var Net=Math.round(100*Math.random()),  -->
+			<!-- In=Math.round(100*Math.random()),  -->
+			<!-- Out=Math.round(100*Math.random()); -->
+	<!-- sampleData[d]={ -->
+			<!-- Net:d3.min([Net,In,Out]),  -->
+			<!-- In:d3.max([Net,In,Out]),  -->
+			<!-- Out:Math.round((Net+In+Out)/3),  -->
+			<!-- color:d3.interpolate("#115fe0", "#ef3737")(Net/100)};  -->
+		<!-- }); -->
+	
+	<!-- 2. Load CSV -->
+	<!-- sampleData = d3.csv("Test.csv", function(data){ -->
+						 <!-- data.forEach(function(d) { -->
+						 <!-- d.Net = +d.Net; -->
+						 <!-- d.In = +d.In; -->
+						 <!-- d.Out = +d.Out; -->
+						 <!-- color = d3.interpolate("#115fe0", "#ef3737")(Net/100)}; -->
+					 <!-- }); -->
+		<!-- console.log(data[0]); -->
+	<!-- }); -->
+	
+	<!-- 3. Load Data -->
+	sampleData = {
+"AK":{"Net":13673,"In":72772,"Out":59099,"color":d3.interpolate("#115fe0", "#ef3737")(0.568365)},
+"AL":{"Net":46349,"In":59672,"Out":13323,"color":d3.interpolate("#115fe0", "#ef3737")(0.731745)},
+"AR":{"Net":-31164,"In":38140,"Out":69304,"color":d3.interpolate("#115fe0", "#ef3737")(0.34418)},
+"AZ":{"Net":-27113,"In":57824,"Out":84937,"color":d3.interpolate("#115fe0", "#ef3737")(0.364435)},
+"CA":{"Net":-42460,"In":12772,"Out":55232,"color":d3.interpolate("#115fe0", "#ef3737")(0.2877)},
+"CO":{"Net":9039,"In":9163,"Out":124,"color":d3.interpolate("#115fe0", "#ef3737")(0.545195)},
+"CT":{"Net":-8192,"In":60579,"Out":68771,"color":d3.interpolate("#115fe0", "#ef3737")(0.45904)},
+"DC":{"Net":15000,"In":45262,"Out":30262,"color":d3.interpolate("#115fe0", "#ef3737")(0.575)},
+"DE":{"Net":39455,"In":93112,"Out":53657,"color":d3.interpolate("#115fe0", "#ef3737")(0.697275)},
+"FL":{"Net":6592,"In":44256,"Out":37664,"color":d3.interpolate("#115fe0", "#ef3737")(0.53296)},
+"GA":{"Net":19317,"In":25254,"Out":5937,"color":d3.interpolate("#115fe0", "#ef3737")(0.596585)},
+"IA":{"Net":119,"In":46902,"Out":46783,"color":d3.interpolate("#115fe0", "#ef3737")(0.500595)},
+"ID":{"Net":21304,"In":94961,"Out":73657,"color":d3.interpolate("#115fe0", "#ef3737")(0.60652)},
+"IL":{"Net":6726,"In":96451,"Out":89725,"color":d3.interpolate("#115fe0", "#ef3737")(0.53363)},
+"IN":{"Net":66445,"In":71900,"Out":5455,"color":d3.interpolate("#115fe0", "#ef3737")(0.832225)},
+"KS":{"Net":43263,"In":63770,"Out":20507,"color":d3.interpolate("#115fe0", "#ef3737")(0.716315)},
+"KY":{"Net":28409,"In":39524,"Out":11115,"color":d3.interpolate("#115fe0", "#ef3737")(0.642045)},
+"LS":{"Net":-32758,"In":36865,"Out":69623,"color":d3.interpolate("#115fe0", "#ef3737")(0.33621)},
+"MA":{"Net":-77135,"In":20768,"Out":97903,"color":d3.interpolate("#115fe0", "#ef3737")(0.114325)},
+"MD":{"Net":33582,"In":52556,"Out":18974,"color":d3.interpolate("#115fe0", "#ef3737")(0.66791)},
+"ME":{"Net":-33661,"In":63381,"Out":97042,"color":d3.interpolate("#115fe0", "#ef3737")(0.331695)},
+"MI":{"Net":25521,"In":46300,"Out":20779,"color":d3.interpolate("#115fe0", "#ef3737")(0.627605)},
+"MN":{"Net":-67244,"In":23014,"Out":90258,"color":d3.interpolate("#115fe0", "#ef3737")(0.16378)},
+"MO":{"Net":-31720,"In":28241,"Out":59961,"color":d3.interpolate("#115fe0", "#ef3737")(0.3414)},
+"MS":{"Net":45311,"In":61848,"Out":16537,"color":d3.interpolate("#115fe0", "#ef3737")(0.726555)},
+"MT":{"Net":-6116,"In":33017,"Out":39133,"color":d3.interpolate("#115fe0", "#ef3737")(0.46942)},
+"NC":{"Net":-1072,"In":32219,"Out":33291,"color":d3.interpolate("#115fe0", "#ef3737")(0.49464)},
+"ND":{"Net":30661,"In":42404,"Out":11743,"color":d3.interpolate("#115fe0", "#ef3737")(0.653305)},
+"NE":{"Net":68355,"In":99399,"Out":31044,"color":d3.interpolate("#115fe0", "#ef3737")(0.841775)},
+"NH":{"Net":18610,"In":61242,"Out":42632,"color":d3.interpolate("#115fe0", "#ef3737")(0.59305)},
+"NJ":{"Net":38709,"In":61706,"Out":22997,"color":d3.interpolate("#115fe0", "#ef3737")(0.693545)},
+"NM":{"Net":15182,"In":46812,"Out":31630,"color":d3.interpolate("#115fe0", "#ef3737")(0.57591)},
+"NV":{"Net":-10893,"In":86934,"Out":97827,"color":d3.interpolate("#115fe0", "#ef3737")(0.445535)},
+"NY":{"Net":-54467,"In":40371,"Out":94838,"color":d3.interpolate("#115fe0", "#ef3737")(0.227665)},
+"OH":{"Net":21695,"In":26311,"Out":4616,"color":d3.interpolate("#115fe0", "#ef3737")(0.608475)},
+"OK":{"Net":-50523,"In":30579,"Out":81102,"color":d3.interpolate("#115fe0", "#ef3737")(0.247385)},
+"OR":{"Net":-51906,"In":37801,"Out":89707,"color":d3.interpolate("#115fe0", "#ef3737")(0.24047)},
+"PA":{"Net":-89879,"In":2858,"Out":92737,"color":d3.interpolate("#115fe0", "#ef3737")(0.050605)},
+"RI":{"Net":-3146,"In":6730,"Out":9876,"color":d3.interpolate("#115fe0", "#ef3737")(0.48427)},
+"SC":{"Net":22085,"In":54977,"Out":32892,"color":d3.interpolate("#115fe0", "#ef3737")(0.610425)},
+"SD":{"Net":28055,"In":58411,"Out":30356,"color":d3.interpolate("#115fe0", "#ef3737")(0.640275)},
+"TN":{"Net":-75690,"In":4153,"Out":79843,"color":d3.interpolate("#115fe0", "#ef3737")(0.12155)},
+"TX":{"Net":-55786,"In":27575,"Out":83361,"color":d3.interpolate("#115fe0", "#ef3737")(0.22107)},
+"UT":{"Net":-63853,"In":76,"Out":63929,"color":d3.interpolate("#115fe0", "#ef3737")(0.180735)},
+"VA":{"Net":44965,"In":69720,"Out":24755,"color":d3.interpolate("#115fe0", "#ef3737")(0.724825)},
+"VT":{"Net":-18735,"In":39534,"Out":58269,"color":d3.interpolate("#115fe0", "#ef3737")(0.406325)},
+"WA":{"Net":-8462,"In":48597,"Out":57059,"color":d3.interpolate("#115fe0", "#ef3737")(0.45769)},
+"WI":{"Net":-53972,"In":28418,"Out":82390,"color":d3.interpolate("#115fe0", "#ef3737")(0.23014)},
+"WV":{"Net":-2571,"In":60715,"Out":63286,"color":d3.interpolate("#115fe0", "#ef3737")(0.487145)},
+"WY":{"Net":-16086,"In":52706,"Out":68792,"color":d3.interpolate("#115fe0", "#ef3737")(0.41957)},
+"HI":{"Net":1418,"In":15119,"Out":13701,"color":d3.interpolate("#115fe0", "#ef3737")(0.50709)}
+};
+	
+	
+	/* draw states on id #statesvg */	
+	uStates.draw("#statesvg", sampleData, tooltipHtml);
+	
+	d3.select(self.frameElement).style("height", "600px"); 
+</script>
+
+</body>
